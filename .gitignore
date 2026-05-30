@@ -1,0 +1,23 @@
+# Virtual environment
+venv/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# VS Code
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Sačuvani modeli i logovi
+*.pkl
+*.zip
+logs/
+runs/
+
+# Jupyter (ako bude trebalo kasnije)
+.ipynb_checkpoints/
