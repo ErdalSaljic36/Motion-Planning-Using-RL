@@ -1,6 +1,21 @@
 import numpy as np
 import gymnasium as gym
 from gymnasium import spaces
+import pygame
+
+CELL_SIZE = 50 #50 pixels for each cell
+WINDOW_PADDING = 0
+FPS = 10
+
+#RGB notation
+COLOR_EMPTY = (255, 255, 255) #White
+COLOR_WALL = (40, 40, 40) #Dark gray
+COLOR_AGENT = (255, 0, 0) #Red
+COLOR_GOAL = (0, 255, 0) #Green
+COLOR_MAZE = (200, 200, 200) #Gray edges of the maze
+
+
+
 
 class MazeEnv(gym.Env): #Class gym.Env is parent class of MazeEnv
     """
@@ -17,7 +32,7 @@ class MazeEnv(gym.Env): #Class gym.Env is parent class of MazeEnv
     ACTION_LEFT=2
     ACTION_DOWN=3
 
-    def __init__(self, max_steps: int=200):
+    def __init__(self, max_steps: int=200, render_mode: str | None = None):
         super().__init__()
 
         #Hardcoded maze layout
@@ -45,6 +60,11 @@ class MazeEnv(gym.Env): #Class gym.Env is parent class of MazeEnv
         #Mandatory atributes from gym.Env
         self.action_space=spaces.Discrete(4)
         self.observation_space=spaces.Box (low=0, high=self.maze_size-1, shape=(2, ), dtype=np.int32)
+
+        #Rendering for visualization
+        self.render_mode = render_mode
+        self.window = None
+        self. clock= None
 
     
     def reset(self, seed=None, options=None):
@@ -95,6 +115,7 @@ class MazeEnv(gym.Env): #Class gym.Env is parent class of MazeEnv
     #Setting this method as private because it is used only in reset() and step() funcions
     def _get_observation(self) -> np.ndarray:
         return self.agent_pos.copy()
+    
     def _is_valid_position(self, pos: np.ndarray) -> bool:
         row, col = pos[0], pos[1]
 
@@ -106,10 +127,64 @@ class MazeEnv(gym.Env): #Class gym.Env is parent class of MazeEnv
             return False
         return True
     
+
+
     def render(self):
-        pass
+        if self.render_mode != "human":
+            return
+        if self.window==None:
+            pygame.init()
+            pygame.display.set_caption("MazeEnv - Motion planning using RL")
+            window_size=self.maze_size * CELL_SIZE
+            self.window = pygame.display.set_mode((window_size, window_size))
+            self.clock = pygame.time.Clock()
+
+        
+        #Event handling
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                self.close()
+                return
+        
+        #Backgorund (cells)
+        self.window.fill(COLOR_EMPTY)
+
+        #Walls
+        for row in range(self.maze_size):
+            for col in range(self.maze_size):
+                if self.maze[row, col] == 1:
+                    rect = pygame.Rect(col * CELL_SIZE, row * CELL_SIZE, CELL_SIZE, CELL_SIZE)
+                    pygame.draw.rect(self.window, COLOR_WALL, rect)
+        
+        #Goal
+        goal_row, goal_col = self.goal_pos[0], self.goal_pos[1]
+        goal_rect = pygame.Rect(goal_col * CELL_SIZE + 5, goal_row * CELL_SIZE + 5, CELL_SIZE - 10, CELL_SIZE - 10)
+        pygame.draw.rect(self.window, COLOR_GOAL, goal_rect)
+        
+        # Draw agent (circle in the center of its cell)
+        agent_row, agent_col = self.agent_pos[0], self.agent_pos[1]
+        agent_center = (agent_col * CELL_SIZE + CELL_SIZE // 2, agent_row * CELL_SIZE + CELL_SIZE // 2)
+        agent_radius = CELL_SIZE // 3
+        pygame.draw.circle(self.window, COLOR_AGENT, agent_center, agent_radius)
+
+
+        for i in range(self.maze_size + 1):
+            # Vertical lines
+            pygame.draw.line(self.window, COLOR_MAZE, (i * CELL_SIZE, 0), (i * CELL_SIZE, self.maze_size * CELL_SIZE), 1)
+            # Horizontal lines
+            pygame.draw.line(self.window, COLOR_MAZE, (0, i * CELL_SIZE), (self.maze_size * CELL_SIZE, i * CELL_SIZE), 1)
+
+        pygame.display.flip()
+        self.clock.tick(FPS)
+
+
+
     def close(self):
-        pass
+        if self.window is not None:
+            pygame.display.quit()
+            pygame.quit()
+            self.window=None
+            self.clock=None
 
     
 
