@@ -1,4 +1,4 @@
-
+#Used to visualize the learned policy and movement of the robot
 import time
 import numpy as np
 from maze_env import MazeEnv

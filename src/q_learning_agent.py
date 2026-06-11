@@ -34,6 +34,7 @@ class QLearningAgent:
         best_action = np.where(q_values == max_q)[0]
         return int(self.rng.choice(best_action))
     
+    #Updates the Q-Learning table
     def update(self, observation, action, reward, next_observation, terminated):
         row, col = int(observation[0]), int(observation[1])
         next_row, next_col = int(next_observation[0]), int(next_observation[1])
