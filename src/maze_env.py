@@ -173,18 +173,21 @@ class MazeEnv(gym.Env): #Class gym.Env is parent class of MazeEnv
             pygame.draw.line(self.window, COLOR_MAZE, (i * CELL_SIZE, 0), (i * CELL_SIZE, self.maze_size * CELL_SIZE), 1)
             # Horizontal lines
             pygame.draw.line(self.window, COLOR_MAZE, (0, i * CELL_SIZE), (self.maze_size * CELL_SIZE, i * CELL_SIZE), 1)
-
+        self._render_overlay()
         pygame.display.flip()
         self.clock.tick(FPS)
 
 
 
+    def _render_overlay():
+        #Method created for the subclass to override it
+        pass
     def close(self):
         if self.window is not None:
             pygame.display.quit()
             pygame.quit()
-            self.window=None
-            self.clock=None
+            self.window = None
+            self.clock = None
 
     
 

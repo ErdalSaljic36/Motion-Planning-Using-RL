@@ -44,14 +44,12 @@ for idx, label in enumerate(STRATEGIES):
     ax = axes[idx]
     visitation = results[label]["visitation_map"]
 
-    # Mask walls so they appear black
+    
     masked = np.ma.masked_where(maze == 1, visitation)
 
-    # Use log scale for color (visitation spans huge range)
-    # Add 1 to avoid log(0)
+    # Use log scale for color, add 1 to avoid log(0)
     im = ax.imshow(np.log10(masked + 1), cmap=cmap, interpolation="nearest")
 
-    # Mark start and goal
     ax.scatter(env_info.start_pos[1], env_info.start_pos[0], marker="s",
                s=150, edgecolor="cyan", facecolor="none", linewidth=2.5)
     ax.scatter(env_info.goal_pos[1], env_info.goal_pos[0], marker="*",
@@ -68,7 +66,7 @@ for idx, label in enumerate(STRATEGIES):
     plt.colorbar(im, ax=ax, label="log10(visits + 1)",
                  fraction=0.046, pad=0.04)
 
-fig.suptitle("Experiment 3: State-Space Coverage by Exploration Strategy",
+fig.suptitle("Experiment 3: Coverage by Exploration Strategy",
              fontsize=15, y=1.00)
 plt.tight_layout()
 path = os.path.join(FIGURES_DIR, "exp3_coverage_heatmaps.png")
