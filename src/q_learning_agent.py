@@ -13,7 +13,7 @@ class QLearningAgent:
         self.eps = eps_start
         self.eps_min = eps_min
         self.eps_decay= eps_decay
-
+        
         #Inital table of Q-values is empty ; for every position (=state) we need 4 values (corresponding to 4 actions)
         self.q_table = np.zeros((maze_size, maze_size, num_actions))
 
