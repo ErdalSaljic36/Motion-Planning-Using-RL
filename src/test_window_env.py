@@ -3,10 +3,10 @@ import time
 import numpy as np
 
 
-env = MazeEnvWindow(render_mode ="human")
+env = MazeEnvWindow(render_mode ="human", window_size=3)
 obs, info = env.reset()
 
-
+print(f"Window size: {env.window_size} x {env.window_size}")
 print ("Observation space: ", env.observation_space)
 print("Initial observation: ")
 print(obs)
