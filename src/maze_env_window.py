@@ -14,14 +14,14 @@ class MazeEnvWindow(MazeEnv):
     The cells outside the bounderies of the maze are interpreted as a wall
     The 3x3 grid observation will later be flattened into 9D array for easeir manipulation
     """
-    def __init__(self, max_steps: int= 200, render_mode: str | None = None, window_size:int=3):
+    def __init__(self, max_steps: int= 200, render_mode: str | None = None, window_size:int=3, maze_set: list | None = None):
         if window_size % 2 == 0:
             raise ValueError("window_size must be odd")
         
         self.window_size = window_size
         self.window_radius = window_size//2
 
-        super().__init__(max_steps=max_steps, render_mode=render_mode)
+        super().__init__(max_steps=max_steps, render_mode=render_mode,  maze_set=maze_set)
         self.observation_space = spaces.Box(low=0, high=1, shape=(window_size, window_size), dtype=np.int32)
 
     def _get_observation(self) -> np.ndarray:
