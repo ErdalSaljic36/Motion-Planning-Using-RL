@@ -32,8 +32,12 @@ class MazeEnv(gym.Env): #Class gym.Env is parent class of MazeEnv
     ACTION_LEFT=2
     ACTION_DOWN=3
 
-    def __init__(self, max_steps: int=200, render_mode: str | None = None):
+    def __init__(self, max_steps: int=200, render_mode: str | None = None, maze_set: list | None=None):
         super().__init__()
+
+        #If we want to use randomly generated maze sets for neural network training
+        self.maze_set=maze_set
+
 
         #Hardcoded maze layout
         self.maze = np.array([
@@ -49,10 +53,14 @@ class MazeEnv(gym.Env): #Class gym.Env is parent class of MazeEnv
             [0, 0, 0, 1, 1, 1, 1, 1, 0, 0],
         ], dtype=np.int32)
 
+
+        if self.maze_set is not None:
+            self._load_maze(self.maze_set[0])
+        else:
+            self.maze_size = self.maze.shape[0]
+            self.start_pos = np.array([0, 0], dtype=np.int32)
+            self.goal_pos = np.array([9, 9], dtype=np.int32)
         #Our atributes
-        self.maze_size=self.maze.shape[0]
-        self.start_pos=np.array([0, 0], dtype=np.int32)
-        self.goal_pos=np.array([9, 9], dtype=np.int32)
         self.max_steps=max_steps
         self.current_step=0
         self.agent_pos=None
@@ -66,9 +74,21 @@ class MazeEnv(gym.Env): #Class gym.Env is parent class of MazeEnv
         self.window = None
         self. clock= None
 
+    def _load_maze(self, maze_data: dict):
+        self.maze = maze_data["maze"].copy()
+        self.maze_size=self.maze.shape[0]
+        self.start_pos=np.array(maze_data["start"], dtype=np.int32)
+        self.goal_pos = np.array(maze_data["goal"], dtype=np.int32)
+        self.optimal_len = maze_data.get("optimal_len", None)
+
+
     
     def reset(self, seed=None, options=None):
         super().reset(seed=seed)
+
+        if self.maze_set is not None:
+            idx = self.np_random.integers(0, len(self.maze_set))
+            self._load_maze(self.maze_set[idx])
 
         self.agent_pos=self.start_pos.copy()
         self.current_step=0
@@ -179,7 +199,7 @@ class MazeEnv(gym.Env): #Class gym.Env is parent class of MazeEnv
 
 
 
-    def _render_overlay():
+    def _render_overlay(self):
         #Method created for the subclass to override it
         pass
     def close(self):
