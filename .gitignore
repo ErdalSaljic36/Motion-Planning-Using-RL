@@ -14,7 +14,7 @@ __pycache__/
 Thumbs.db
 
 # Sačuvani modeli i logovi
-*.pkl
+.pkl
 *.zip
 logs/
 runs/
