@@ -38,7 +38,8 @@ class MazeEnv(gym.Env): #Class gym.Env is parent class of MazeEnv
         #If we want to use randomly generated maze sets for neural network training
         self.maze_set=maze_set
         self.reward_shaping = reward_shaping
-        self.shaping_scale = 0.1   # how strong the shaping reward is
+        self.shaping_scale = 0.1              # reward for moving toward the goal
+        self.shaping_scale_away = 0.033       # weaker penalty for moving away (3x)
 
         #Hardcoded maze layout
         self.maze = np.array([
@@ -119,13 +120,21 @@ class MazeEnv(gym.Env): #Class gym.Env is parent class of MazeEnv
             if self.reward_shaping:
                 old_dist = np.abs(self.agent_pos - self.goal_pos).sum()
                 new_dist = np.abs(next_pos - self.goal_pos).sum()
-                shaping = (old_dist - new_dist) * self.shaping_scale
+                delta = old_dist - new_dist
+
+                # Asymmetric shaping --> closer = +0.1, moving away = -0.033
+                if delta > 0:
+                    shaping = delta * self.shaping_scale         # approaching: +0.1
+                else:
+                    shaping = delta * self.shaping_scale_away    # moving away: -0.033
+
                 reward = -0.01 + shaping
             else:
                 reward = -0.01
-            self.agent_pos = next_pos
+
+                self.agent_pos = next_pos
         else:
-            reward = -0.1
+            reward = -0.
 
         terminated = np.array_equal(self.agent_pos, self.goal_pos)
         if terminated:
