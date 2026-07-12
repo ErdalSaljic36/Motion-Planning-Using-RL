@@ -7,8 +7,8 @@ MAZE_SIZE = 10
 WALL_DENSITY = 0.30
 MIN_PATH_LENGTH = 4
 
-NUM_TRAIN = 150
-NUM_TEST = 30
+NUM_TRAIN = 5000
+NUM_TEST = 500
 
 TRAIN_SEED = 42
 TEST_SEED = 999
@@ -24,8 +24,8 @@ print(f"Generating {NUM_TEST} test sets...")
 test_mazes = generate_maze_set(count = NUM_TEST, size = MAZE_SIZE, wall_density=WALL_DENSITY, seed= TEST_SEED, min_path_length=MIN_PATH_LENGTH)
 
 
-train_path = os.path.join(OUTPUT_DIR, "train_mazes.pkl")
-test_path = os.path.join(OUTPUT_DIR, "test_mazes.pkl")
+train_path = os.path.join(OUTPUT_DIR, f"train_mazes{NUM_TRAIN}.pkl")
+test_path = os.path.join(OUTPUT_DIR, f"test_mazes{NUM_TEST}.pkl")
 
 
 with open(train_path, "wb") as f:

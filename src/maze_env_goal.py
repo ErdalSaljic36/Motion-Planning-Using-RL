@@ -14,9 +14,10 @@ from maze_env_window import MazeEnvWindow
 
 class MazeEnvGoal(MazeEnvWindow):
     def __init__(self, max_steps: int = 200, render_mode: str | None = None,
-                 window_size: int = 3, maze_set: list | None = None):
+                 window_size: int = 3, maze_set: list | None = None, reward_shaping:bool=False):
         super().__init__(max_steps=max_steps, render_mode=render_mode,
-                         window_size=window_size, maze_set=maze_set)
+                         window_size=window_size, maze_set=maze_set, reward_shaping=reward_shaping)
+        
 
         window_cells = window_size * window_size
         obs_dim = window_cells + 2

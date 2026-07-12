@@ -32,12 +32,13 @@ class MazeEnv(gym.Env): #Class gym.Env is parent class of MazeEnv
     ACTION_LEFT=2
     ACTION_DOWN=3
 
-    def __init__(self, max_steps: int=200, render_mode: str | None = None, maze_set: list | None=None):
+    def __init__(self, max_steps: int=200, render_mode: str | None = None, maze_set: list | None=None, reward_shaping: bool = False):
         super().__init__()
 
         #If we want to use randomly generated maze sets for neural network training
         self.maze_set=maze_set
-
+        self.reward_shaping = reward_shaping
+        self.shaping_scale = 0.1   # how strong the shaping reward is
 
         #Hardcoded maze layout
         self.maze = np.array([
@@ -100,38 +101,44 @@ class MazeEnv(gym.Env): #Class gym.Env is parent class of MazeEnv
     
     #Step function prepared for advanced algorithms to use in Gymnasium API (returns 5 values)
     def step(self, action: int):
-        
-        self.current_step +=1
+        self.current_step += 1
 
-        next_pos=self.agent_pos.copy()
+        next_pos = self.agent_pos.copy()
         if action == self.ACTION_UP:
-            next_pos[0] -=1
+            next_pos[0] -= 1
         elif action == self.ACTION_DOWN:
-            next_pos[0] +=1
+            next_pos[0] += 1
         elif action == self.ACTION_RIGHT:
-            next_pos[1] +=1
+            next_pos[1] += 1
         elif action == self.ACTION_LEFT:
-            next_pos[1] -=1
+            next_pos[1] -= 1
         else:
             raise ValueError(f"Invalid action: {action}")
-        
-        if self._is_valid_position(next_pos):
-            self.agent_pos=next_pos
-            reward = -0.01
-        else:
-            reward =-0.1
-        
-        terminated=np.array_equal(self.agent_pos, self.goal_pos)
-        if terminated:
-            reward =1
 
-        truncated=self.current_step >= self.max_steps
+        if self._is_valid_position(next_pos):
+            if self.reward_shaping:
+                old_dist = np.abs(self.agent_pos - self.goal_pos).sum()
+                new_dist = np.abs(next_pos - self.goal_pos).sum()
+                shaping = (old_dist - new_dist) * self.shaping_scale
+                reward = -0.01 + shaping
+            else:
+                reward = -0.01
+            self.agent_pos = next_pos
+        else:
+            reward = -0.1
+
+        terminated = np.array_equal(self.agent_pos, self.goal_pos)
+        if terminated:
+            reward = 1.0
+
+        truncated = self.current_step >= self.max_steps
 
         observation = self._get_observation()
         info = {}
 
         return observation, reward, terminated, truncated, info
-
+    
+    
     #Setting this method as private because it is used only in reset() and step() funcions
     def _get_observation(self) -> np.ndarray:
         return self.agent_pos.copy()
